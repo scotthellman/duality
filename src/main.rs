@@ -1,24 +1,30 @@
 pub mod tensor;
+pub mod layers;
 use tensor::DualNumber;
+use layers::{Linear, Sigmoid, Layer};
 
-fn ex(x1: DualNumber, x2: DualNumber) -> (DualNumber) {
+fn ex(x1: DualNumber, x2: DualNumber) -> DualNumber {
     let a = DualNumber::from(3.0);
     let b = DualNumber::from(5.0);
 
     a*x1*x1 + b*x1*x2
 }
 
+fn ex2() -> DualNumber {
+    let weights: Vec<f64> = vec![0.5, 0.2, 0.1];
+    let weights = weights.into_iter().map(DualNumber::from).collect();
+    let linear = Linear{in_size: 3, out_size: 1, weights};
+    let sigmoid = Sigmoid{};
+    let values: Vec<f64> = vec![1.0, 2.0, 3.0];
+    let mut values: Vec<DualNumber> = values.into_iter().map(DualNumber::from).collect();
+    values[0].dual = 1.0;
+
+    sigmoid.forward(&linear.forward(&values))[0]
+
+}
+
+
 fn main() {
-    let x1 = DualNumber{real: 2., dual: 1.};
-    let x2 = DualNumber{real: -1., dual: 0.};
-    let first_eval = ex(x1, x2);
-    println!("first eval {:?}", first_eval);
-
-    let x1 = DualNumber{real: 2., dual: 0.};
-    let x2 = DualNumber{real: -1., dual: 1.};
-    let second_eval = ex(x1, x2);
-    println!("second eval {:?}", second_eval);
-
-    println!("derivative wrt x1: {}", first_eval.dual);
-    println!("derivative wrt x2: {}", second_eval.dual);
+    let result = ex2();
+    println!("{}", result);
 }
