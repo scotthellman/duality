@@ -1,5 +1,6 @@
 pub mod tensor;
 pub mod layers;
+use rand::prelude::*;
 use tensor::DualNumber;
 use layers::{Linear, Sigmoid, Layer, Network, sgd};
 
@@ -19,12 +20,22 @@ fn ex2() {
 
     let mut network = Network::from_layers(layers);
 
-    let input = vec![0.0, 1.0];
-    let expected = vec![0.3];
-
     for i in 0..300 {
-        sgd(&mut network, &input, &expected, 10.0);
-        println!("{}", network.forward(&input, None)[0]);
+        let inputs: Vec<f64> = (0..2).map({|_| 
+            if rand::random::<bool>() {
+                1.0
+            } else{
+                0.0
+            }
+        }).collect();
+
+        let predicate = inputs.iter()
+            .any(|&x| {
+                x == 1.0
+            });
+        let expected = if predicate {vec![1.0]} else {vec![0.0]};
+        sgd(&mut network, &inputs, &expected, 10.0);
+        println!("{:?} -> {}", inputs, network.forward(&inputs, None)[0]);
     }
 }
 

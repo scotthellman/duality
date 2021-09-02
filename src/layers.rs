@@ -155,13 +155,14 @@ pub fn sgd(network: &mut Network, input: &[f64], target: &[f64], step_size: f64)
             (d.real - t) * (d.real - t)
         })
         .collect();
+    println!("loss was {:?}", loss);
     let param_iter = network.param_iter();
     for index in param_iter {
         let flat = network.flat_index(index);
         let update: f64 = {
             let gradient_chunk = &network.gradients.as_ref().unwrap()[flat..flat + loss.len()];
             gradient_chunk.iter().zip(loss.iter())
-                .map(|(g, l)| g*l*step_size)
+                .map(|(g, l)| -1.0*g*l*step_size)
                 .sum()
         };
         network.update_param(update, index);
